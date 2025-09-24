@@ -1,0 +1,2 @@
+- import_tasks: set-hostname.yml
+- import_tasks: set-timezone.yml

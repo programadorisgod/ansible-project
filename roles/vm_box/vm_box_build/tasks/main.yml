@@ -1,25 +1,21 @@
-- name: Crear vm's
+# - name: Crear directorios de VMs
+#   ansible.builtin.file:
+#     path: "{{ parent_folder }}/'dhcp-server'"
+#     state: directory
+
+- name: Crear vm DHCP
   ansible.builtin.shell: |
-    VBoxManage createvm --name "{{ item.name }}" --ostype Debian_64 --basefolder {{ parent_folder }} --register
-    VBoxManage modifyvm "{{ item.name }}" --firmware bios --boot1 dvd --boot2 disk --boot3 none --boot4 none
-    VBoxManage modifyvm "{{ item.name }}" --memory {{ item.memory }} --cpus {{ item.cpus }} --audio-driver none --graphicscontroller vmsvga --vram 16
-    VBoxManage createhd --filename {{ parent_folder }}/{{ item.name }}/{{ item.name }}.vdi --size {{ item.disk_size }} --variant Standard
-    VBoxManage storagectl "{{ item.name }}" --name "SATA Controller" --add sata --controller IntelAhci
-    VBoxManage storageattach "{{ item.name }}" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium {{ parent_folder }}/{{ item.name }}/{{ item.name }}.vdi --nonrotational on --hotpluggable on
-    VBoxManage storagectl "{{ item.name }}" --name "IDE Controller" --add ide
-    VBoxManage modifyvm "{{ item.name }}" --macaddress1 {{item.mac}}
-    VBoxManage storageattach "{{ item.name }}" --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium {{ iso_out }}
-  loop: "{{vm_list}}"
+    VBoxManage createvm --name  "dhcp-server"  --ostype Debian_64 --basefolder {{ parent_folder }} --register
+    VBoxManage modifyvm  "dhcp-server"  --firmware bios --boot1 dvd --boot2 disk --boot3 none --boot4 none
+    VBoxManage modifyvm  "dhcp-server"  --memory 1024 --cpus 1 --audio-driver none --graphicscontroller vmsvga --vram 16
+    VBoxManage createhd --filename {{ parent_folder }}/dhcp-server/dhcp-server.vdi --size 8000 --variant Standard
+    VBoxManage storagectl  "dhcp-server"  --name "SATA Controller" --add sata --controller IntelAhci
+    VBoxManage storageattach  "dhcp-server"  --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium {{ parent_folder }}/dhcp-server/dhcp-server.vdi --nonrotational on --hotpluggable on
+    VBoxManage storagectl  "dhcp-server"  --name "IDE Controller" --add ide
+    VBoxManage modifyvm  "dhcp-server"  --macaddress1 0800274962D7
+    VBoxManage storageattach  "dhcp-server"  --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium {{ iso_out }}
 
 - name: Configurar red para el servidor DHCP (2 NIC)
   ansible.builtin.shell: |
-    VBoxManage modifyvm "{{ item.name }}" --nic1 bridged --bridgeadapter1 enp2s0
-    VBoxManage modifyvm "{{ item.name }}" --nic2 intnet --intnet2 intnet
-  loop: "{{vm_list}}"
-  when: item.name == "dhcp-server"
-
-- name: Configurar red interna
-  ansible.builtin.shell: |
-    VBoxManage modifyvm "{{ item.name }}" --nic1 intnet --intnet1 intnet
-  loop: "{{vm_list}}"
-  when: item.name != "dhcp-server"
+    VBoxManage modifyvm  "dhcp-server" --nic1 bridged --bridgeadapter1 enp2s0
+    VBoxManage modifyvm  "dhcp-server" --nic2 intnet --intnet2 intnet

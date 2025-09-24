@@ -8,6 +8,13 @@
       - whois
     state: present
     update_cache: yes
+
+- name: Desmontar ISO base existente
+  ansible.posix.mount:
+    path: "{{ mnt_dir }}"
+    src: "{{ iso_src }}"
+    state: unmounted
+
 - name: Crear directorios de trabajo
   ansible.builtin.file:
     path: "{{ item }}"
@@ -24,12 +31,6 @@
     url: https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-13.1.0-amd64-netinst.iso
     dest: "{{ iso_src }}"
     mode: "0644"
-
-- name: Desmontar ISO base existente
-  ansible.posix.mount:
-    path: "{{ mnt_dir }}"
-    src: "{{ iso_src }}"
-    state: unmounted
 
 - name: Montar ISO base
   ansible.posix.mount:

@@ -1,0 +1,105 @@
+- name: Reiniciar NetworkManager
+  ansible.builtin.systemd_service:
+    state: restarted
+    name: NetworkManager
+
+- name: Habilitar NetworkManager
+  ansible.builtin.systemd_service:
+    name: NetworkManager
+    state: started
+    enabled: true
+
+- name: Eliminar conexiones conflictivas
+  community.general.nmcli:
+    conn_name: "Wired connection 1"
+    state: absent
+  ignore_errors: true
+  become: true
+
+- name: Eliminar posibles conexiones antiguas de enp0s8
+  community.general.nmcli:
+    conn_name: enp0s8
+    state: absent
+  ignore_errors: true
+  become: true
+
+- name: Crear conexión enp0s8 con IP estática
+  ansible.builtin.command: >
+    nmcli connection add type ethernet ifname enp0s8 con-name enp0s8 ipv4.addresses 192.168.2.1/24 ipv4.method manual
+  become: true
+
+- name: Activar conexión enp0s8
+  ansible.builtin.command:
+    cmd: nmcli connection up enp0s8
+  become: true
+
+- name: Asegurarse de que la interfaz enp0s8 está activa
+  community.general.nmcli:
+    conn_name: enp0s8
+    state: up
+  become: true
+
+- name: Configurar el isc-dhcp-server para que escuche la interfaz
+  ansible.builtin.lineinfile:
+    path: /etc/default/isc-dhcp-server
+    regexp: "^INTERFACESv4="
+    line: 'INTERFACESv4="enp0s8"'
+    state: present
+
+- name: copiar el dhcpd.conf
+  ansible.builtin.copy:
+    src: dhcpd.conf
+    dest: "/etc/dhcp/dhcpd.conf"
+    mode: "0644"
+
+- name: Reiniciar el servidor isc-dhcp
+  ansible.builtin.systemd_service:
+    state: restarted
+    name: isc-dhcp-server
+
+- name: Habilitar el servidor isc-dhcp
+  ansible.builtin.systemd_service:
+    name: isc-dhcp-server
+    state: started
+    enabled: true
+
+# # # # #
+#       #
+#       #
+#       #
+# EXTRA #
+- name: Habilitar IP forwarding
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    sysctl_set: true
+    state: present
+    reload: true
+
+- name: Configurar NAT en enp0s3
+  ansible.builtin.iptables:
+    table: nat
+    chain: POSTROUTING
+    source: 192.168.2.0/24
+    out_interface: enp0s3
+    jump: MASQUERADE
+
+- name: Permitir forward clientes -> Internet
+  ansible.builtin.iptables:
+    chain: FORWARD
+    in_interface: enp0s8
+    out_interface: enp0s3
+    source: 192.168.2.0/24
+    jump: ACCEPT
+
+- name: Permitir tráfico de retorno
+  ansible.builtin.iptables:
+    chain: FORWARD
+    in_interface: enp0s3
+    out_interface: enp0s8
+    destination: 192.168.2.0/24
+    ctstate: ESTABLISHED,RELATED
+    jump: ACCEPT
+
+- name: Guardar reglas iptables
+  command: netfilter-persistent save

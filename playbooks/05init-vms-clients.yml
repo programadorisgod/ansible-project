@@ -1,0 +1,9 @@
+- name: iniciar las vm's clientes
+  hosts: local
+  gather_facts: false
+  vars_files:
+    - ../vars/main.yml
+    - ../group_vars/all.yml
+  roles:
+    - vm_box/vm_box_build_clients
+    - vm_box/vm_box_init_clients

@@ -1,0 +1,27 @@
+- name: Iniciar la vm del servidor DHCP
+  ansible.builtin.shell: |
+    VBoxManage startvm  "dhcp-server" --type headless
+
+- name: Esperar a que se levanten la vm
+  ansible.builtin.pause:
+    minutes: 8
+
+- name: Obtener la MAC de la VM (formateada)
+  ansible.builtin.shell: |
+    VBoxManage showvminfo "dhcp-server" --machinereadable \
+    | grep macaddress1 \
+    | cut -d'"' -f2 \
+    | fold -w2 \
+    | paste -sd: \
+    | tr '[:upper:]' '[:lower:]'
+  register: vm_mac
+
+- name: Buscar IP en la red con arp-scan
+  ansible.builtin.shell: |
+    arp-scan --interface=enp2s0 --localnet | grep {{ vm_mac.stdout | trim }} | awk '{print $1}'
+  register: vm_ip
+  become: true
+
+- name: Mostrar IP de las VM
+  ansible.builtin.debug:
+    msg: "vm: dhcp-server - ip: {{ vm_ip.stdout }}"

@@ -1,0 +1,5 @@
+- name: configurar server dhcp
+  hosts: dhcp
+  become: true
+  roles:
+    - vm_box/vm_box_configure_dhcp

@@ -1,15 +1,18 @@
 vm_list:
   - name: dhcp-server
-    memory: 517
+    memory: 1024
     cpus: 1
-    disk_size: 1000
+    disk_size: 8000
     mac: 0800274962D7
   - name: k8s-master
     memory: 2096
     cpus: 2
     disk_size: 20000
-    mac: 0800272762D6
+    mac1: 0800576762D6
+    mac2: 0800272762D6
+    ssh_port: 2222
 #   - name: k8s-worker
 #     memory: 2048
 #     cpus: 1
 #     disk_size: 10000
+#     mac: 0800272754D8

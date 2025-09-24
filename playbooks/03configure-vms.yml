@@ -1,0 +1,12 @@
+- name: Configure hostname and timezone
+  vars_files:
+    - ../vars/main.yml
+  hosts:
+    - dhcp
+    - controller
+    - master
+
+  gather_facts: false
+  become: true
+  roles:
+    - common_vm

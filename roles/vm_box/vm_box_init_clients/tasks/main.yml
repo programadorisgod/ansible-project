@@ -1,0 +1,9 @@
+- name: Iniciar las vm's
+  ansible.builtin.shell: |
+    VBoxManage startvm {{ item.name }} --type headless
+  loop: "{{ vm_list }}"
+  when: item.name != "dhcp-server"
+
+- name: Esperar a que se levanten las vm's
+  ansible.builtin.pause:
+    minutes: 8
