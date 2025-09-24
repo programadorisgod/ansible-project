@@ -1,0 +1,5 @@
+- name: instalar mikr8s
+  hosts: master
+  become: true
+  roles:
+    - mikr8s

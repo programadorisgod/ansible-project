@@ -1,0 +1,11 @@
+- name: Generar ISO personalizada
+  command: >
+    xorriso -as mkisofs
+    -o "{{ iso_out }}"
+    -r -iso-level 3 -V "DEBIAN_CUSTOM"
+    -no-emul-boot -boot-load-size 4 -boot-info-table
+    -b isolinux/isolinux.bin -c isolinux/boot.cat
+    -eltorito-alt-boot -e boot/grub/efi.img -no-emul-boot
+    -isohybrid-gpt-basdat -isohybrid-apm-hfsplus
+    -input-charset utf-8
+    "{{ wrk_dir }}"

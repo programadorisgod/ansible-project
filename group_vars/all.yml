@@ -1,0 +1,11 @@
+parent_folder: /vm
+iso_src: /vm/iso/debian-13.1.0-amd64-netinst.iso
+iso_out: /vm/iso/debian-13.1.0-amd64-netinst-custom.iso
+mnt_dir: /vm/iso/debian-iso
+wrk_dir: /vm/iso/debian-iso-work
+user_name: sysadmin
+user_uid: 1000
+user_fullname: "System Administrator"
+user_password_hash: "$6$OzWgAQQvuDgABKwz$sxA7XMUOHMBEFjEtzYhd571O6ci/oNm9OPEVdre9euz4W5e/HK3nfH4HzjOtrjT2C8bgwuT1iqCQ2hc3cBU6a0" # mkpasswd
+timezone: "America/Bogota"
+ssh_authorized_keys: "~/.ssh/authorized_keys"

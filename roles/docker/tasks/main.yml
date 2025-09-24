@@ -1,0 +1,40 @@
+- name: Install deb packages
+  ansible.builtin.apt:
+    state: latest
+    name:
+      - curl
+      - ca-certificates
+      - git
+      - python3
+      - python3-pip
+      - python3-venv
+      - python3-pexpect
+
+- name: Add Docker's official GPG key
+  shell: |
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+      $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | \
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    sudo apt update
+
+- name: Install Docker CE
+  apt:
+    state: latest
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+
+- name: Add sysadmin to docker group
+  user:
+    name: sysadmin
+    groups: docker
+    append: yes

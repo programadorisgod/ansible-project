@@ -1,0 +1,10 @@
+- name: crear vm's en base a la iso personalizada
+  hosts: local
+  gather_facts: false
+  vars_files:
+    - ../roles/vm_box/vars/main.yml
+  roles:
+    - common
+    - vm_box/vm_box_prepare
+    - vm_box/vm_box_build
+    - vm_box/vm_box_init

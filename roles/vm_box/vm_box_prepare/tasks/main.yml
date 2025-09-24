@@ -1,0 +1,9 @@
+- name: limpiar las maquinas anteriores
+  ansible.builtin.shell: |
+    for vm in $(VBoxManage list runningvms | awk '{print $1}' | tr -d '""'); do
+    VBoxManage controlvm "$vm" poweroff || true;
+    done
+
+    for vm in $(VBoxManage list vms | awk '{print $1}' | tr -d '"'); do
+        VBoxManage unregistervm "$vm" --delete
+    done

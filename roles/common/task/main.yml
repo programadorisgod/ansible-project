@@ -1,0 +1,14 @@
+- name: instalar openssh-server
+  ansible.builtin.apt:
+    name:
+      - openssh-server
+      - arp-scan
+      - virtualbox
+    state: present
+    update_cache: yes
+
+- name: asegurar que el servicio ssh este iniciado y habilitado
+  ansible.builtin.systemd_service:
+    name: ssh
+    state: started
+    enabled: yes

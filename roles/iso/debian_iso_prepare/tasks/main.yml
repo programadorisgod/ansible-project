@@ -1,0 +1,43 @@
+- name: Instalar dependencias
+  ansible.builtin.apt:
+    name:
+      - xorriso
+      - isolinux
+      - syslinux-utils
+      - rsync
+      - whois
+    state: present
+    update_cache: yes
+- name: Crear directorios de trabajo
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+  loop:
+    - "{{ parent_folder }}/iso"
+    - "{{ mnt_dir }}"
+    - "{{ wrk_dir }}"
+
+- name: Descargar la ultima versión de Debian
+  ansible.builtin.get_url:
+    url: https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-13.1.0-amd64-netinst.iso
+    dest: "{{ iso_src }}"
+    mode: "0644"
+
+- name: Desmontar ISO base existente
+  ansible.posix.mount:
+    path: "{{ mnt_dir }}"
+    src: "{{ iso_src }}"
+    state: unmounted
+
+- name: Montar ISO base
+  ansible.posix.mount:
+    path: "{{ mnt_dir }}"
+    src: "{{ iso_src }}"
+    fstype: iso9660
+    opts: loop
+    state: mounted
+
+- name: Copiar contenido de la ISO al directorio de trabajo
+  command: rsync -a --delete "{{ mnt_dir }}/" "{{ wrk_dir }}/"
