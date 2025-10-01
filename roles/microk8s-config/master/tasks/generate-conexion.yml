@@ -1,0 +1,19 @@
+- name: Ejecutar microk8s config
+  ansible.builtin.command: /snap/bin/microk8s config
+  register: microk8s_config
+
+- name: Guardar config en variable global
+  set_fact:
+    microk8s_config_content: "{{ microk8s_config.stdout }}"
+
+- name: Generar ip para conecatar nodos
+  ansible.builtin.command: /snap/bin/microk8s  add-node
+  register: add_node
+
+- name: Extraer solo la línea de join con --worker
+  set_fact:
+    microk8s_join_command: "{{ add_node.stdout | regex_search('microk8s join .* --worker', '\\0') }}"
+
+- name: Mostrar el comando de join
+  ansible.builtin.debug:
+    var: microk8s_join_command

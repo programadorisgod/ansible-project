@@ -1,0 +1,4 @@
+- name: agregar el worker al cluster de microk8s
+  ansible.builtin.command: "/snap/bin/{{hostvars['k8s-master'].microk8s_join_command[0]}}"
+  delegate_to: "{{item}}"
+  loop: "{{ groups['controller'] }}"

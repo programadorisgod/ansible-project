@@ -10,9 +10,10 @@ vm_list:
     disk_size: 20000
     mac1: 0800576762D6
     mac2: 0800272762D6
-    ssh_port: 2222
-#   - name: k8s-worker
-#     memory: 2048
-#     cpus: 1
-#     disk_size: 10000
-#     mac: 0800272754D8
+
+  - name: k8s-worker
+    memory: 2096
+    cpus: 1
+    disk_size: 10000
+    mac1: 0800272355D8
+    mac2: 0800272754D8

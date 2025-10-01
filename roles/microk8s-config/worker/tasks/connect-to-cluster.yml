@@ -1,0 +1,9 @@
+- name: Guardar la configuración del cluster k8s-master
+  ansible.builtin.copy:
+    dest: "/home/sysadmin/.kube/.config"
+    content: "{{ hostvars['k8s-master'].microk8s_config_content }}"
+    mode: "0600"
+    owner: "{{ansible_user}}"
+    group: "{{ansible_user}}"
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['controller'] }}"

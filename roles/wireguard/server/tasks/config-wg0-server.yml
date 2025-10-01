@@ -1,0 +1,78 @@
+# PASO 3 - Generar claves publica/privada
+- name: Generar clave privada
+  ansible.builtin.shell: wg genkey
+  register: private_key
+
+- name: Imprirmir y guardar la clave publica
+  ansible.builtin.shell: echo "{{private_key.stdout}}" | wg pubkey
+  register: public_key
+
+# Crear el archivo con las llaves del server
+- name: Generar en un diccionario
+  ansible.builtin.set_fact:
+    claves:
+      server:
+        public_key_server: "{{public_key.stdout}}"
+        private_key_server: "{{private_key.stdout}}"
+        allowed_ips: "{{allowed_ips}}"
+        endpoint: "{{endpoint}}"
+
+# Guardar las claves del server
+- name: Guardar claves (iniciales) del server en el archivo .yml
+  ansible.builtin.copy:
+    dest: "{{ playbook_dir }}/../vars/vars_saved.yml"
+    mode: "0600"
+    content: "{{claves | to_nice_yaml}}"
+    owner: "{{ansible_user}}"
+    group: "{{ansible_user}}"
+
+  # Generar las claves de los clientes (para no tener que hacerlo otra vez todo en el cliente, sino solo conectar)
+- name: Generar clave privada cliente
+  shell: wg genkey
+  register: private_client
+
+- name: Generar clave pública cliente
+  shell: echo "{{ private_client.stdout }}" | wg pubkey
+  register: public_client
+
+- name: Cargar claves actuales
+  include_vars:
+    file: "{{ playbook_dir }}/../vars/vars_saved.yml"
+    name: claves
+  become: true
+
+- name: Agregar cliente al diccionario de claves
+  set_fact:
+    claves: >-
+      {{ claves | combine({
+          'peers': { 'client1': {
+            'public_key': public_client.stdout,
+            'private_key': private_client.stdout
+          }}
+        }, recursive=True) }}
+
+- name: Guardar claves finales en el archivo .yml
+  ansible.builtin.copy:
+    dest: "{{ playbook_dir }}/../vars/vars_saved.yml"
+    mode: "0600"
+    content: "{{claves | to_nice_yaml}}"
+
+# Paso 4  configurar wg0
+- name: Copiar el archivo de configuración wg0.conf
+  ansible.builtin.template:
+    src: "wg0.conf.j2"
+    dest: "/etc/wireguard/wg0.conf"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Levantar la interfaz virtual wg0 (abrir esa puerta para comunicarnos)
+  ansible.builtin.command: ip link set wg0 up
+
+- name: Asegurar que wg0 esté arriba
+  ansible.builtin.shell: |
+    set -e
+    wg-quick down wg0 || true
+    wg-quick up wg0
+  ignore_errors: true
+  become: true

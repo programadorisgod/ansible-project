@@ -1,0 +1,70 @@
+- name: Bajar interfaz si existe
+  ansible.builtin.command: ip link set wg0 down
+  ignore_errors: true
+  become: true
+
+- name: Eliminar la interfaz si existe
+  ansible.builtin.command: ip link delete wg0
+  ignore_errors: true
+  become: true
+
+## PASO 1
+- name: Crear interfaz virtual wg0 (es decir, crear la puerta paracomunicarnos)
+  ansible.builtin.command: ip link add wg0 type wireguard
+  become: true
+  ignore_errors: true
+
+- name: Asignar IP a la interfaz virtual wg0 (Sino, ¿cómo la identificaremos?)
+  ansible.builtin.command: ip addr add 10.0.0.1/24 dev wg0
+  become: true
+  ignore_errors: true
+
+## PASO 2 FIREWALL Y NAT (este paso si lo hacemos declarativo, ya que hay un modulo para ello)
+
+#sudo iptables -A INPUT -p udp --dport 51820 -j ACCEPT
+- name: Permitir UDP por el puerto 51820
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: udp
+    destination_port: 51820
+    jump: ACCEPT
+    comment: Accept UDP to port 51820.
+  become: true
+
+#sudo iptables -A INPUT -i wg0 -j ACCEPT
+- name: Permitir el trafico entrante  por la interfaz wg0
+  ansible.builtin.iptables:
+    chain: INPUT
+    in_interface: wg0
+    jump: ACCEPT
+  become: true
+
+#sudo iptables -A FORWARD -i wg0 -j ACCEPT
+- name: Permitir el tráfico entrante desde wg0
+  ansible.builtin.iptables:
+    chain: FORWARD
+    in_interface: wg0
+    jump: ACCEPT
+  become: true
+
+#sudo iptables -A FORWARD -o wg0 -j ACCEPT
+- name: Permitir el tráfico saliente desde wg0
+  ansible.builtin.iptables:
+    chain: FORWARD
+    out_interface: wg0
+    jump: ACCEPT
+
+# sudo iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE
+- name: Permitir salida a internet a través de enmascaramiento NAT
+  ansible.builtin.iptables:
+    table: nat
+    chain: POSTROUTING
+    out_interface: enp0s3
+    jump: MASQUERADE
+  become: true
+
+- name: Guardar reglas iptables
+  ansible.builtin.command: netfilter-persistent save
+  become: true
+
+- import_tasks: config-wg0-server.yml

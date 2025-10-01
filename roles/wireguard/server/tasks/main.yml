@@ -1,0 +1,2 @@
+- import_tasks: install-dependences.yml
+- import_tasks: config-server-wireguard.yml

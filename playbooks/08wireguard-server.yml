@@ -1,0 +1,5 @@
+- name: instalar y configuar wireguard en el servidor
+  hosts: local
+  become: true
+  roles:
+    - wireguard/server

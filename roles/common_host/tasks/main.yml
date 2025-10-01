@@ -6,9 +6,11 @@
       - virtualbox
     state: present
     update_cache: yes
+  become: true
 
 - name: asegurar que el servicio ssh este iniciado y habilitado
   ansible.builtin.systemd_service:
     name: ssh
     state: started
     enabled: yes
+  become: true

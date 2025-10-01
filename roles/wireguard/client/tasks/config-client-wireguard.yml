@@ -1,0 +1,20 @@
+- name: Bajar interfaz si existe
+  ansible.builtin.command: ip link set wg0 down
+  ignore_errors: true
+  become: true
+
+- name: Eliminar la interfaz si existe
+  ansible.builtin.command: ip link delete wg0
+  ignore_errors: true
+  become: true
+
+## PASO 1
+- name: Crear interfaz virtual wg0 (es decir, crear la puerta paracomunicarnos)
+  ansible.builtin.command: ip link add wg0 type wireguard
+  become: true
+
+- name: Asignar IP a la interfaz virtual wg0 (Sino, ¿cómo la identificaremos?)
+  ansible.builtin.command: ip addr add 10.0.0.2/24 dev wg0
+  become: true
+
+- import_tasks: config-wg0-client.yml

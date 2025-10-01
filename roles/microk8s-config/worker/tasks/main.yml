@@ -1,0 +1,2 @@
+- import_tasks: connect-to-cluster.yml
+- import_tasks: add-node-to-cluster.yml

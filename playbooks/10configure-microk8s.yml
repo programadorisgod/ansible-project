@@ -1,0 +1,8 @@
+- name: Configurar el cluster de microk8s
+  hosts:
+    - master
+    - worker
+
+  roles:
+    - microk8s-config/master
+    - microk8s-config/worker
