@@ -57,3 +57,28 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     recurse: yes
+
+- name: enable addons microk8s (ingress)
+  ansible.builtin.command: /snap/bin/microk8s enable ingress
+
+- name: enable addons microk8s (metallb) (balanceador)
+  ansible.builtin.command: /snap/bin/microk8s enable metallb
+
+- name: enable addons microk8s (hostpath-storage)
+  ansible.builtin.command: /snap/bin/microk8s enable hostpath-storage
+
+- name: Crear alias kubectl para microk8s
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.bashrc"
+    line: "alias kubectl='/snap/bin/microk8s kubectl'"
+    state: present
+    create: yes
+    insertafter: EOF
+  become: false
+
+- name: Recargar el bashrc para aplicar alias
+  ansible.builtin.shell: source {{ ansible_env.HOME }}/.bashrc
+  args:
+    executable: /bin/bash
+  become: false
+  changed_when: false

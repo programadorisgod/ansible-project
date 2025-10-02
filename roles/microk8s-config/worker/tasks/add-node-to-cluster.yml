@@ -2,3 +2,8 @@
   ansible.builtin.command: "/snap/bin/{{hostvars['k8s-master'].microk8s_join_command[0]}}"
   delegate_to: "{{item}}"
   loop: "{{ groups['controller'] }}"
+
+- name: asignar rol worker
+  ansible.builtin.command: "/snap/bin/microk8s kubectl label node k8s-worker role=worker"
+  delegate_to: "{{item}}"
+  loop: "{{ groups['controller'] }}"

@@ -1,9 +1,9 @@
 peers:
     client1:
-        private_key: 2LSkrdSGtUHZTN3PWGT7/sFzUOZE87iGK1bPIKYgLUU=
-        public_key: ESwJoeaiuPvfp+6ChkZXWsibVQn+gCOCgZ1gNFefh00=
+        private_key: iA1KA2uwws8JAnm77a/Aw0yKsol9sPS3T9D807lFFlY=
+        public_key: REipM1QxKFzehnC79h6mlfVnDaVnbKtyuYr58DB+0SI=
 server:
-    allowed_ips: 10.10.0.1/32
+    allowed_ips: 10.10.0.2/32
     endpoint: 192.168.1.108:51820
-    private_key_server: eJkSdLZJwnH2+HNfxlvVQa6okSIGZOwMGGD9s2ePyk4=
-    public_key_server: yikXUJWBlc9K12pBoIhZd6b95oChSpJqvyh0ZWjj1lk=
+    private_key_server: CDVJCt2TQ36RYEb6lbUpbDfs0EgLeaaRlj9FbT7h1l0=
+    public_key_server: TTxpnKf33hrbKyqa8K6Br2GOFUecj7BgfEYPzGdMVTQ=

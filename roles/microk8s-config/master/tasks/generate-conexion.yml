@@ -17,3 +17,8 @@
 - name: Mostrar el comando de join
   ansible.builtin.debug:
     var: microk8s_join_command
+
+- name: asignar rol controlplane
+  ansible.builtin.command: "/snap/bin/microk8s kubectl label node k8s-master role=controlplane"
+  delegate_to: "{{item}}"
+  loop: "{{ groups['master'] }}"
