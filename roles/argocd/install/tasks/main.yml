@@ -1,0 +1,16 @@
+- name: Crear namespace argocd
+  ansible.builtin.shell: /snap/bin/microk8s kubectl create namespace argocd
+  register: ns_result
+  ignore_errors: true
+
+- name: Mostrar resultado de namespace
+  ansible.builtin.debug:
+    msg: "{{ ns_result.stdout }}"
+
+- name: Instalar Argo CD
+  ansible.builtin.shell: /snap/bin/microk8s kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  register: install_result
+
+- name: Mostrar resultado de instalación
+  ansible.builtin.debug:
+    msg: "{{ install_result.stdout }}"

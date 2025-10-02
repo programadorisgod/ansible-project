@@ -1,0 +1,27 @@
+- name: Configurar ARGOCD
+  ansible.builtin.shell: |
+    /snap/bin/microk8s kubectl patch configmap argocd-cmd-params-cm -n argocd --patch '{"data": {"server.insecure": "true"}}'
+    /snap/bin/microk8s kubectl rollout restart deployment argocd-server -n argocd
+
+- name: Configuar ingress
+  ansible.builtin.template:
+    src: "ingress.yml.j2"
+    dest: "/tmp/ingress.yml"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: borrar ingress
+  ansible.builtin.command: /snap/bin/microk8s kubectl delete -f /tmp/ingress.yml
+  ignore_errors: true
+
+- name: aplicar ingress
+  ansible.builtin.command: /snap/bin/microk8s kubectl apply -f /tmp/ingress.yml
+
+- name: verificar si se aplicó bien
+  ansible.builtin.command: /snap/bin/microk8s kubectl get ingress -n argocd
+  register: apply
+
+- name: Mostrar un mensaje simple
+  ansible.builtin.debug:
+    msg: "{{apply.stdout}}"
