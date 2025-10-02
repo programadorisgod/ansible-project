@@ -1,29 +1,18 @@
-- name: update apt cache
+- name: Actualizar cache de apt
   ansible.builtin.apt:
     update_cache: yes
 
-- name: install dependencies
+- name: Instalar snapd
   ansible.builtin.apt:
     name: snapd
     state: present
 
-- name: install microk8s
-  community.general.snap:
-    name: microk8s
-    state: present
-    classic: true
+- name: Instalar MicroK8s
+  ansible.builtin.command: snap install microk8s --classic
+  args:
+    creates: /snap/bin/microk8s
 
-- name: wait until microk8s is ready
-  ansible.builtin.command: /snap/bin/microk8s status --wait-ready
-  register: microk8s_status
-  changed_when: false
-
-# - name: ensure /snap/bin is in PATH
-#   ansible.builtin.shell: 'echo "export PATH=$PATH:/snap/bin" >> /etc/profile.d/snap_path.sh'
-#   args:
-#     creates: /etc/profile.d/snap_path.sh
-
-- name: ensure /snap/bin is in PATH
+- name: Asegurar que /snap/bin está en PATH
   ansible.builtin.copy:
     dest: /etc/profile.d/snap_path.sh
     content: |
@@ -32,42 +21,44 @@
     group: root
     mode: "0644"
 
-- name: wait a bit for snapd to finish setup
+- name: Esperar a que microk8s esté listo
   ansible.builtin.wait_for:
     path: /snap/bin/microk8s
     state: present
     timeout: 120
 
-- name: add user to microk8s group
+- name: Añadir usuario al grupo microk8s
   ansible.builtin.user:
     name: "{{ ansible_user }}"
     groups: microk8s
     append: yes
 
-- name: ensure kube config dir exists
+- name: Esperar hasta que microk8s esté listo
+  ansible.builtin.command: /snap/bin/microk8s status --wait-ready
+  register: microk8s_status
+  changed_when: false
+
+- name: Crear directorio .kube
   ansible.builtin.file:
     path: "/home/{{ ansible_user }}/.kube"
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
+    mode: "0755"
 
-- name: change ownership of .kube recursively
+- name: Cambiar propietario de .kube recursivamente
   ansible.builtin.file:
     path: "/home/{{ ansible_user }}/.kube"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     recurse: yes
 
-- name: enable addons microk8s (ingress)
-  ansible.builtin.command: /snap/bin/microk8s enable ingress
+- name: Habilitar addons de MicroK8s (ingres) (metallb) (balanceador) (hostpath-storage)
+  ansible.builtin.command: /snap/bin/microk8s enable ingress metallb hostpath-storage
+  delegate_to: "{{item}}"
+  loop: "{{ groups['master'] }}"
 
-- name: enable addons microk8s (metallb) (balanceador)
-  ansible.builtin.command: /snap/bin/microk8s enable metallb
-
-- name: enable addons microk8s (hostpath-storage)
-  ansible.builtin.command: /snap/bin/microk8s enable hostpath-storage
-
-- name: Crear alias kubectl para microk8s
+- name: Crear alias kubectl
   ansible.builtin.lineinfile:
     path: "{{ ansible_env.HOME }}/.bashrc"
     line: "alias kubectl='/snap/bin/microk8s kubectl'"
@@ -75,10 +66,3 @@
     create: yes
     insertafter: EOF
   become: false
-
-- name: Recargar el bashrc para aplicar alias
-  ansible.builtin.shell: source {{ ansible_env.HOME }}/.bashrc
-  args:
-    executable: /bin/bash
-  become: false
-  changed_when: false
