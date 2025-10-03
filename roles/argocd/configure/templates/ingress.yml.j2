@@ -4,6 +4,7 @@ metadata:
   name: argocd-server-ingress
   namespace: argocd
 spec:
+  ingressClassName: public
   rules:
     - host: "{{host_service_argocd}}"
       http:

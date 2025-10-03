@@ -6,11 +6,15 @@
   ansible.builtin.apt:
     name: snapd
     state: present
+  become: true
 
-- name: Instalar MicroK8s
-  ansible.builtin.command: snap install microk8s --classic
-  args:
-    creates: /snap/bin/microk8s
+- name: Instalar MicroK8s con canal estable
+  community.general.snap:
+    name: microk8s
+    classic: true
+    channel: latest/stable
+    state: present
+  become: true
 
 - name: Asegurar que /snap/bin está en PATH
   ansible.builtin.copy:
@@ -20,6 +24,7 @@
     owner: root
     group: root
     mode: "0644"
+  become: true
 
 - name: Esperar a que microk8s esté listo
   ansible.builtin.wait_for:
@@ -32,11 +37,12 @@
     name: "{{ ansible_user }}"
     groups: microk8s
     append: yes
+  become: true
 
-- name: Esperar hasta que microk8s esté listo
-  ansible.builtin.command: /snap/bin/microk8s status --wait-ready
-  register: microk8s_status
-  changed_when: false
+# - name: Esperar hasta que microk8s esté listo
+#   ansible.builtin.command: /snap/bin/microk8s status --wait-ready
+#   register: microk8s_status
+#   changed_when: false
 
 - name: Crear directorio .kube
   ansible.builtin.file:
@@ -45,6 +51,8 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: "0755"
+    recurse: true
+  become: true
 
 - name: Cambiar propietario de .kube recursivamente
   ansible.builtin.file:
@@ -53,10 +61,12 @@
     group: "{{ ansible_user }}"
     recurse: yes
 
+#metallb hostpath-storage
 - name: Habilitar addons de MicroK8s (ingres) (metallb) (balanceador) (hostpath-storage)
-  ansible.builtin.command: /snap/bin/microk8s enable ingress metallb hostpath-storage
+  ansible.builtin.command: /snap/bin/microk8s enable ingress
   delegate_to: "{{item}}"
   loop: "{{ groups['master'] }}"
+  become: true
 
 - name: Crear alias kubectl
   ansible.builtin.lineinfile:
@@ -65,4 +75,4 @@
     state: present
     create: yes
     insertafter: EOF
-  become: false
+  become: true
