@@ -8,12 +8,16 @@
     state: present
   become: true
 
-- name: Instalar MicroK8s con canal estable
-  community.general.snap:
-    name: microk8s
-    classic: true
-    channel: latest/stable
-    state: present
+- name: Instalar core snap (requerido a veces en Debian)
+  ansible.builtin.command: snap install core
+  args:
+    creates: /snap/bin/core
+  become: true
+
+- name: Instalar MicroK8s estable
+  ansible.builtin.command: snap install microk8s --classic --channel=latest/stable
+  args:
+    creates: /snap/bin/microk8s
   become: true
 
 - name: Asegurar que /snap/bin está en PATH
