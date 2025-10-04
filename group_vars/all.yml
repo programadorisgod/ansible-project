@@ -12,3 +12,15 @@ ssh_authorized_keys: "~/.ssh/authorized_keys"
 home_dir: "/home/camidev"
 allowed_ips: 10.10.0.2/32
 endpoint: 192.168.1.108:51820
+nic: enp2s0
+nic_bridge: enp0s3
+nic_dhcp: enp0s8
+static_ip_dhcp: 192.168.2.1/24
+internal_gateway_vms: 192.168.2.0/24
+subnet: 192.168.2.0
+init_range_subnet: 192.168.2.100
+end_range_subnet: 192.168.2.200
+gateway_subnet: 192.168.2.1
+broadcast_address: 192.168.2.255
+k8s_master_subnet: 192.168.2.50
+k8s_worker_subnet: 192.168.2.51

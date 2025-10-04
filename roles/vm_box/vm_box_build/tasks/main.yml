@@ -17,5 +17,5 @@
 
 - name: Configurar red para el servidor DHCP (2 NIC)
   ansible.builtin.shell: |
-    VBoxManage modifyvm  "dhcp-server" --nic1 bridged --bridgeadapter1 enp2s0
+    VBoxManage modifyvm  "dhcp-server" --nic1 bridged --bridgeadapter1 {{nic}}
     VBoxManage modifyvm  "dhcp-server" --nic2 intnet --intnet2 intnet

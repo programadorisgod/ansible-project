@@ -13,10 +13,10 @@ option domain-name-servers 8.8.8.8, 8.8.4.4;
 # ========================
 # Definición de red
 # ========================
-subnet 192.168.2.0 netmask 255.255.255.0 {
-  range 192.168.2.100 192.168.2.200;  # Pool dinámico
-  option routers 192.168.2.1;         # Gateway
-  option broadcast-address 192.168.2.255;
+subnet {{subnet}} netmask 255.255.255.0 {
+  range {{init_range_subnet}} {{end_range_subnet}};  # Pool dinámico
+  option routers {{gateway_subnet}};         # Gateway
+  option broadcast-address {{broadcast_address}};
 }
 
 # ========================
@@ -24,10 +24,10 @@ subnet 192.168.2.0 netmask 255.255.255.0 {
 # ========================
 host k8s-master {
   hardware ethernet 08:00:27:27:62:D6;  # MAC del cliente
-  fixed-address 192.168.2.50;           # IP fija
+  fixed-address {{k8s_master_subnet}};           # IP fija
 }
 
 host k8s-worker {
   hardware ethernet 08:00:27:27:54:D8;
-  fixed-address 192.168.2.51;
+  fixed-address {{k8s_worker_subnet}};
 }
