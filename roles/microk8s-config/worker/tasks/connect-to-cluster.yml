@@ -1,3 +1,14 @@
+- name: Crear directorio .kube en el worker si no existe
+  ansible.builtin.file:
+    path: /home/sysadmin/.kube
+    state: directory
+    owner: sysadmin
+    group: sysadmin
+    mode: "0755"
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['controller'] }}"
+  become: true
+
 - name: Guardar la configuración del cluster k8s-master
   ansible.builtin.copy:
     dest: "/home/sysadmin/.kube/.config"
