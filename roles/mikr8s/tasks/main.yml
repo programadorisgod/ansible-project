@@ -1,23 +1,63 @@
-- name: Actualizar cache de apt
+- name: Instalar dependencias necesarias para snapd
   ansible.builtin.apt:
+    name:
+      - apparmor
+      - squashfs-tools
+      - fuse
+    state: present
     update_cache: yes
+  become: true
 
-- name: Instalar snapd
+- name: Asegurar que snapd está instalado
   ansible.builtin.apt:
     name: snapd
     state: present
+  register: snapd_install
+  until: snapd_install is succeeded
+  retries: 5
+  delay: 10
   become: true
 
-- name: Instalar core snap (requerido a veces en Debian)
+- name: Asegurar que snapd está habilitado y corriendo
+  ansible.builtin.systemd:
+    name: snapd
+    enabled: true
+    state: started
+  become: true
+
+- name: Asegurar que el socket de snapd está habilitado
+  ansible.builtin.systemd:
+    name: snapd.socket
+    enabled: true
+    state: started
+  become: true
+
+- name: Esperar a que snapd esté listo
+  ansible.builtin.command: systemctl is-active snapd
+  register: snapd_status
+  retries: 10
+  delay: 5
+  until: snapd_status.stdout == "active"
+  become: true
+
+- name: Instalar core (requerido por MicroK8s)
   ansible.builtin.command: snap install core
   args:
     creates: /snap/bin/core
+  register: core_result
+  until: core_result.rc == 0
+  retries: 3
+  delay: 15
   become: true
 
 - name: Instalar MicroK8s estable
   ansible.builtin.command: snap install microk8s --classic --channel=latest/stable
   args:
     creates: /snap/bin/microk8s
+  register: microk8s_result
+  until: microk8s_result.rc == 0
+  retries: 3
+  delay: 20
   become: true
 
 - name: Asegurar que /snap/bin está en PATH
@@ -31,52 +71,16 @@
   become: true
 
 - name: Esperar a que microk8s esté listo
-  ansible.builtin.wait_for:
-    path: /snap/bin/microk8s
-    state: present
-    timeout: 120
+  ansible.builtin.command: /snap/bin/microk8s status --wait-ready
+  register: microk8s_ready
+  retries: 10
+  delay: 15
+  changed_when: false
+  become: true
 
 - name: Añadir usuario al grupo microk8s
   ansible.builtin.user:
     name: "{{ ansible_user }}"
     groups: microk8s
     append: yes
-  become: true
-
-# - name: Esperar hasta que microk8s esté listo
-#   ansible.builtin.command: /snap/bin/microk8s status --wait-ready
-#   register: microk8s_status
-#   changed_when: false
-
-- name: Crear directorio .kube
-  ansible.builtin.file:
-    path: "/home/{{ ansible_user }}/.kube"
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: "0755"
-    recurse: true
-  become: true
-
-- name: Cambiar propietario de .kube recursivamente
-  ansible.builtin.file:
-    path: "/home/{{ ansible_user }}/.kube"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    recurse: yes
-
-#metallb hostpath-storage
-- name: Habilitar addons de MicroK8s (ingres) (metallb) (balanceador) (hostpath-storage)
-  ansible.builtin.command: /snap/bin/microk8s enable ingress
-  delegate_to: "{{item}}"
-  loop: "{{ groups['master'] }}"
-  become: true
-
-- name: Crear alias kubectl
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_env.HOME }}/.bashrc"
-    line: "alias kubectl='/snap/bin/microk8s kubectl'"
-    state: present
-    create: yes
-    insertafter: EOF
   become: true

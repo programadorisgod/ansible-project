@@ -7,3 +7,4 @@
     for vm in $(VBoxManage list vms | awk '{print $1}' | tr -d '"'); do
         VBoxManage unregistervm "$vm" --delete
     done
+  ignore_errors: true

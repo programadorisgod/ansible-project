@@ -1,9 +1,0 @@
-- name: install dependencias
-  ansible.builtin.apt:
-    name:
-      - isc-dhcp-server
-      - iptables
-      - iptables-persistent
-      - network-manager
-    state: present
-    update_cache: yes

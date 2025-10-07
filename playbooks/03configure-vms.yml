@@ -2,7 +2,6 @@
   vars_files:
     - ../vars/main.yml
   hosts:
-    - dhcp
     - controller
     - master
 
@@ -10,3 +9,9 @@
   become: true
   roles:
     - common_vm
+
+- import_playbook: 07install-mikr8s.yml
+- import_playbook: 08wireguard-server.yml
+- import_playbook: 09wireguard-client.yml
+- import_playbook: 10configure-microk8s.yml
+- import_playbook: 11configure-argocd.yml

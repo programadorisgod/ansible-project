@@ -1,0 +1,20 @@
+[local]
+localhost ansible_connection=local ansible_user={{ user_host }}
+
+[master]
+{% for item in vm_ips.results %}
+{% set name = item.item.item.name %}
+{% set ip = item.stdout.split('\n')[0] %}
+{% if name == 'k8s-master' and ip %}
+{{ ip }} ansible_user=sysadmin ansible_ssh_private_key_file=~/.ssh/id_ed25519
+{% endif %}
+{% endfor %}
+
+[controller]
+{% for item in vm_ips.results %}
+{% set name = item.item.item.name %}
+{% set ip = item.stdout.split('\n')[0] %}
+{% if name != 'k8s-master' and name != 'dhcp-server' and ip %}
+{{ ip }} ansible_user=sysadmin ansible_ssh_private_key_file=~/.ssh/id_ed25519
+{% endif %}
+{% endfor %}

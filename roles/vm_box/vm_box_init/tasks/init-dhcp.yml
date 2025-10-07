@@ -1,27 +1,40 @@
-- name: Iniciar la vm del servidor DHCP
+- name: Iniciar las vm's
   ansible.builtin.shell: |
-    VBoxManage startvm  "dhcp-server" --type headless
+    VBoxManage startvm {{ item.name }} --type headless
+  loop: "{{ vm_list }}"
+  when: item.name != "dhcp-server"
+  become: false
 
 - name: Esperar a que se levanten la vm
   ansible.builtin.pause:
     minutes: 8
 
-- name: Obtener la MAC de la VM (formateada)
+- name: Obtener la MAC de cada VM (formateada)
   ansible.builtin.shell: |
-    VBoxManage showvminfo "dhcp-server" --machinereadable \
+    VBoxManage showvminfo "{{ item.name }}" --machinereadable \
     | grep macaddress1 \
     | cut -d'"' -f2 \
     | fold -w2 \
     | paste -sd: \
     | tr '[:upper:]' '[:lower:]'
-  register: vm_mac
+  loop: "{{ vm_list }}"
+  register: vm_macs
 
 - name: Buscar IP en la red con arp-scan
   ansible.builtin.shell: |
-    arp-scan --interface=enp2s0 --localnet | grep {{ vm_mac.stdout | trim }} | awk '{print $1}'
-  register: vm_ip
+    arp-scan --interface={{nic}} --localnet | grep {{ item.stdout }} | awk '{print $1}'
+  loop: "{{ vm_macs.results }}"
+  register: vm_ips
   become: true
 
-- name: Mostrar IP de las VM
+- name: Mostrar IPs de las VM's
   ansible.builtin.debug:
-    msg: "vm: dhcp-server - ip: {{ vm_ip.stdout }}"
+    msg: "vm: {{  item.item.item.name }} - ip: {{ item.stdout }}"
+  loop: "{{ vm_ips.results }}"
+
+- name: Construir el inventario dinámicamente
+  ansible.builtin.template:
+    src: "inventory.j2"
+    dest: ./hosts.ini
+    force: true
+    mode: "0644"

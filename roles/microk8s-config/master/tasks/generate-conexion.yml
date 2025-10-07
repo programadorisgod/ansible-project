@@ -1,3 +1,19 @@
+- name: Asegurar que el usuario tenga permisos sobre microk8s
+  ansible.builtin.command: "usermod -a -G microk8s {{ ansible_user }}"
+  become: true
+  changed_when: false
+
+- name: Cambiar propietario del directorio .kube
+  ansible.builtin.command: "chown -R {{ ansible_user }} ~/.kube"
+  become: true
+  changed_when: false
+
+- name: Refrescar grupos del usuario para microk8s
+  ansible.builtin.shell: "newgrp microk8s <<EOF\nexit\nEOF"
+  become: true
+  become_user: "{{ ansible_user }}"
+  changed_when: false
+
 - name: Ejecutar microk8s config
   ansible.builtin.command: /snap/bin/microk8s config
   register: microk8s_config
