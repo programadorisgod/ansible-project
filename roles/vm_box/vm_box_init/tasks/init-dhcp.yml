@@ -7,7 +7,7 @@
 
 - name: Esperar a que se levanten la vm
   ansible.builtin.pause:
-    minutes: 8
+    minutes: 9
 
 - name: Obtener la MAC de cada VM (formateada)
   ansible.builtin.shell: |
@@ -35,6 +35,9 @@
 - name: Construir el inventario dinámicamente
   ansible.builtin.template:
     src: "inventory.j2"
-    dest: ./hosts.ini
+    dest: "{{playbook_dir}}/../.hosts"
     force: true
     mode: "0644"
+    group: "{{ ansible_user }}"
+    owner: "{{ ansible_user }}"
+  become: true
