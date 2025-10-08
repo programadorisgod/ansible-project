@@ -1,3 +1,15 @@
+- name: Asegurar que el usuario tenga permisos sobre microks
+  block:
+    - name: Agregar el usuario al grupo de microk8s
+      ansible.builtin.command: "usermod -aG microk8s {{ ansible_user }}"
+      become: true
+      changed_when: false
+
+    - name: Cambiar propietario del directorio .kube
+      ansible.builtin.command: "chown -R {{ ansible_user }} ~/.kube"
+      become: true
+      changed_when: false
+
 - name: agregar el worker al cluster de microk8s
   ansible.builtin.command: "/snap/bin/{{hostvars['k8s-master'].microk8s_join_command[0]}}"
   delegate_to: "{{item}}"

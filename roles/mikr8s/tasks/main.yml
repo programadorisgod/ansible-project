@@ -32,13 +32,22 @@
     state: started
   become: true
 
-- name: Esperar a que snapd esté listo
-  ansible.builtin.command: systemctl is-active snapd
-  register: snapd_status
-  retries: 10
-  delay: 5
-  until: snapd_status.stdout == "active"
-  become: true
+- name: Asegurar que snapd esté corriendo
+  block:
+    - name: Reiniciar snapd si está inactivo
+      ansible.builtin.systemd:
+        name: snapd
+        state: restarted
+        enabled: true
+      become: true
+
+    - name: Esperar a que snapd esté listo
+      ansible.builtin.command: systemctl is-active snapd
+      register: snapd_status
+      retries: 10
+      delay: 20
+      until: snapd_status.stdout == "active"
+      become: true
 
 - name: Instalar core (requerido por MicroK8s)
   ansible.builtin.command: snap install core
@@ -53,13 +62,15 @@
 - name: Instalar MicroK8s estable
   ansible.builtin.command: snap install microk8s --classic --channel=latest/stable
   args:
-    creates: /snap/bin/microk8s
+    creates: /snap/bin/microk8s #args creates evita reinstalaciones
   register: microk8s_result
-  until: microk8s_result.rc == 0
-  retries: 3
+  until: microk8s_result.rc == 0 # rc es el código de retorno del comando [0 ok y 1 error]
+  retries: 3 # seria el 1 intento + 3
   delay: 20
   become: true
 
+#profle.d es es un directorio que contiene scripts shell que se ejecutan al iniciar sesión un usuario, evitando modificar el archivo /etc/profile directamente
+#Al hacer  export PATH=$PATH:/snap/bin estamos creando un script que cada que el usuario inicie sesión se añadirá /snap/bin al PATH del usuario.
 - name: Asegurar que /snap/bin está en PATH
   ansible.builtin.copy:
     dest: /etc/profile.d/snap_path.sh
@@ -75,7 +86,7 @@
   register: microk8s_ready
   retries: 10
   delay: 15
-  changed_when: false
+  changed_when: false # evitará que la tarea se nos muestre com [changed] sino como [ok]
   become: true
 
 - name: Añadir usuario al grupo microk8s
@@ -84,3 +95,12 @@
     groups: microk8s
     append: yes
   become: true
+
+- name: Crear alias kubectl para el usuario
+  ansible.builtin.lineinfile:
+    path: "/home/{{ ansible_user }}/.bashrc"
+    line: "alias kubectl='microk8s kubectl'"
+    state: present
+    create: yes
+  become: true
+  become_user: "{{ ansible_user }}"
