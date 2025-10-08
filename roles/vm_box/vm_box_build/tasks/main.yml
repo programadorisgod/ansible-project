@@ -1,8 +1,3 @@
-# - name: Crear directorios de VMs
-#   ansible.builtin.file:
-#     path: "{{ parent_folder }}/'dhcp-server'"
-#     state: directory
-
 - name: Crear vm's
   ansible.builtin.shell: |
     VBoxManage createvm --name "{{ item.name }}" --ostype Debian_64 --basefolder {{ parent_folder }} --register
@@ -18,8 +13,3 @@
   loop: "{{vm_list}}"
   when: item.name != "dhcp-server"
   become: false
-# - name: Configurar red temporal NAT para instalación
-#   ansible.builtin.shell: |
-#     VBoxManage modifyvm "{{ item.name }}" --nic1 nat
-#   loop: "{{ vm_list }}"
-#   when: item.name != "dhcp-server"
