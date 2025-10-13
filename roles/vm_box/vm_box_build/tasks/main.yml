@@ -9,6 +9,7 @@
     VBoxManage storagectl "{{ item.name }}" --name "IDE Controller" --add ide
     VBoxManage modifyvm "{{ item.name }}" --macaddress1 {{item.mac1}}
     VBoxManage modifyvm "{{ item.name }}" --nic1 bridged --bridgeadapter1 {{nic}}
+    VBoxManage modifyvm  "{{ item.name }}" --nicpromisc1 allow-all
     VBoxManage storageattach "{{ item.name }}" --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium {{ iso_out }}
   loop: "{{vm_list}}"
   when: item.name != "dhcp-server"
