@@ -1,0 +1,13 @@
+- name: Habilitar addon ingress de microk8s
+  ansible.builtin.command: "/snap/bin/microk8s enable  ingress"
+  register: enable_addons
+  changed_when: "'enabled' in enable_addons.stdout"
+
+- name: Habilitar addon metallb de microk8s
+  ansible.builtin.command: "/snap/bin/microk8s enable metallb:{{metallb_ip_range}}"
+  register: enable_metallb
+  changed_when: "'enabled' in enable_metallb.stdout"
+
+- name: Mostrar resultado de habilitar addons
+  ansible.builtin.debug:
+    msg: "{{ enable_addons.stdout }} {{ enable_metallb.stdout }}"
