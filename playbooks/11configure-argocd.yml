@@ -1,5 +1,7 @@
 - name: instalar y configurar argocd
-  hosts: master
+  hosts:
+    - master
+    - local
   vars_files:
     - ../vars/main.yml
   become: true
