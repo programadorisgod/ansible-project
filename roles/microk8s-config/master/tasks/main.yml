@@ -1,1 +1,2 @@
 - import_tasks: generate-conexion.yml
+- import_tasks: config.yml
