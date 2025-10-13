@@ -25,3 +25,11 @@
 - name: Mostrar un mensaje simple
   ansible.builtin.debug:
     msg: "{{apply.stdout}}"
+
+- name: Actualizar etc/host
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: "^{{host_service_argocd}}"
+    line: "{{hostvars[groups['master'][0]].ansible_host}}  {{host_service_argocd}}"
+  delegate_to: "{{item}}"
+  loop: "{{groups['local']}}"
