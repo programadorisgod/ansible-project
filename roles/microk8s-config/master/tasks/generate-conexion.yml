@@ -13,7 +13,8 @@
 - name: Ejecutar microk8s config
   ansible.builtin.command: /snap/bin/microk8s config
   register: microk8s_config
-  become_user: "{{ ansible_user }}"
+  become: true
+  # become_user: "{{ ansible_user }}"
 
 - name: Guardar config en variable global
   set_fact:
