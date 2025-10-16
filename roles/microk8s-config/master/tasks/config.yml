@@ -8,6 +8,11 @@
   register: enable_metallb
   changed_when: "'enabled' in enable_metallb.stdout"
 
+- name: Habilitar el addon de storage para las bases de datos
+  ansible.builtin.command: "/snap/bin/microk8s enable hostpath-storage"
+  register: enable_hostpath-storage
+  changed_when: "'enabled' in enable_hostpath-storage.stdout"
+
 - name: Mostrar resultado de habilitar addons
   ansible.builtin.debug:
     msg: "{{ enable_addons.stdout }} {{ enable_metallb.stdout }}"
