@@ -16,6 +16,6 @@
   loop: "{{ groups['controller'] }}"
 
 - name: asignar rol worker
-  ansible.builtin.command: "/snap/bin/microk8s kubectl label node k8s-worker role=worker"
+  ansible.builtin.command: /snap/bin/microk8s kubectl label node k8s-worker node-role.kubernetes.io/worker=""
   delegate_to: "{{item}}"
   loop: "{{ groups['controller'] }}"

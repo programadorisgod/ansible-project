@@ -23,6 +23,7 @@
 - name: Generar ip para conecatar nodos
   ansible.builtin.command: /snap/bin/microk8s  add-node
   register: add_node
+  become: true
 
 - name: Extraer solo la línea de join con --worker
   set_fact:
@@ -33,6 +34,6 @@
     var: microk8s_join_command
 
 - name: asignar rol controlplane
-  ansible.builtin.command: "/snap/bin/microk8s kubectl label node k8s-master role=controlplane"
+  ansible.builtin.command: /snap/bin/microk8s kubectl label node k8s-master node-role.kubernetes.io/control-plane=""
   delegate_to: "{{item}}"
   loop: "{{ groups['master'] }}"
