@@ -1,0 +1,7 @@
+- name: instalar dependencias comunes
+  hosts: local
+  gather_facts: false
+  roles:
+    - install_common_host_packages
+
+- import_playbook: 01_build_custom_debian_iso.yml

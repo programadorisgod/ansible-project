@@ -1,0 +1,10 @@
+- name: Installar docker en la vm
+  hosts: controller
+  gather_facts: false
+  become: true
+  roles:
+    - install_and_configure_docker
+    - azure_devops/login_docker_hub
+    - azure_devops/build_agent_image
+    - azure_devops/push_agent_image
+    - azure_devops/run_agent_container

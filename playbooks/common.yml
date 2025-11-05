@@ -1,5 +1,0 @@
-- name: instalar dependencias comunes
-  hosts: local
-  gather_facts: false
-  roles:
-    - common_host

@@ -1,7 +1,0 @@
-- name: instalar wireguard
-  ansible.builtin.apt:
-    name:
-      - wireguard
-      - resolvconf
-    state: present
-    update_cache: true

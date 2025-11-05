@@ -1,0 +1,7 @@
+- name: instalar mikr8s
+  hosts:
+    - master
+    - controller
+  become: true
+  roles:
+    - install_microk8s

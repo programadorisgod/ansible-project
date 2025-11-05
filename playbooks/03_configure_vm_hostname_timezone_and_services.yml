@@ -1,0 +1,16 @@
+- name: Configure hostname and timezone
+  # vars_files:
+  #   - ../vars/main.yml
+  hosts:
+    - controller
+    - master
+
+  gather_facts: false
+  become: true
+  roles:
+    - configure_vm_hostname_and_timezone
+
+- import_playbook: 06_setup_docker_and_azure_agent.yml
+- import_playbook: 07_install_microk8s_cluster.yml
+- import_playbook: 08_configure_microk8s_cluster.yml
+- import_playbook: 09_install_and_configure_argocd.yml

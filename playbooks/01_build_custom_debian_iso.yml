@@ -1,0 +1,9 @@
+- name: Construir Debian ISO personalizada
+  hosts: local
+  become: true
+  roles:
+    - iso/prepare_debian_iso_environment
+    - iso/customize_debian_iso
+    - iso/build_debian_iso
+
+- import_playbook: 02_create_virtual_machines_from_iso.yml

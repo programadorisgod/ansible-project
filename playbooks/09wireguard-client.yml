@@ -1,5 +1,0 @@
-- name: instalar y configuar wireguard en el client
-  hosts: master
-  become: true
-  roles:
-    - wireguard/client

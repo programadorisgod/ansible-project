@@ -1,8 +1,0 @@
-- name: instalar wireguard
-  ansible.builtin.apt:
-    name:
-      - wireguard
-      - iptables-persistent
-      - netfilter-persistent
-    state: present
-    update_cache: true

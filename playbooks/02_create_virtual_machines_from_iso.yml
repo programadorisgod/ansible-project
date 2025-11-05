@@ -1,0 +1,24 @@
+- name: crear vm's en base a la iso personalizada
+  hosts: local
+  gather_facts: false
+  vars:
+    skip_build_vm: false
+  tasks:
+    - name: Ejecutar roles de build de VM solo si no se omite
+      import_role:
+        name: install_common_host_packages
+      when: not  skip_build_vm | bool
+
+    - import_role:
+        name: vm_box/prepare_vm_environment
+      when: not  skip_build_vm | bool
+
+    - import_role:
+        name: vm_box/build_virtual_machines
+      when: not  skip_build_vm | bool
+
+    - import_role:
+        name: vm_box/initialize_vm_networking
+      when: not  skip_build_vm | bool
+
+- import_playbook: 03_configure_vm_hostname_timezone_and_services.yml

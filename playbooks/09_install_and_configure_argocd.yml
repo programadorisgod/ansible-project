@@ -1,0 +1,10 @@
+- name: instalar y configurar argocd
+  hosts:
+    - master
+    - local
+
+  become: true
+
+  roles:
+    - argocd/install_argocd_on_microk8s
+    - argocd/configure_argocd_ingress_and_settings
