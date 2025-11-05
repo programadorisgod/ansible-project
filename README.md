@@ -115,8 +115,7 @@ En ansible podemos usar las vars, que son conocidas como variables magicas, esta
 
 ## Configuraciones necesarias
 1. Ansible vault.
-Tenemos varaibles que no queremos que estén expuestas y que en caso tal se filtre nuestro repositorio quedemos tan expuesto, por lo tanto usaremos ansible-vault que nos permite guardar variables de manera
-cifrada.
+Tenemos varaibles que no queremos que estén expuestas y que en caso tal se filtre nuestro repositorio quedemos tan expuesto, por lo tanto usaremos ansible-vault que nos permite guardar variables de manera cifrada. Todos los datos de este repositorio son de ejemplo para fines educativos.
 ### Crear las variables cifradas
 
 ```bash
