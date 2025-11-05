@@ -53,7 +53,7 @@
     chain: FORWARD
     out_interface: wg0
     jump: ACCEPT
-
+  become: true
 # sudo iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE
 - name: Permitir salida a internet a través de enmascaramiento NAT
   ansible.builtin.iptables:

@@ -1,5 +1,16 @@
 - name: Asegurar que el usuario tenga permisos sobre microk8s
   block:
+    - name: Crear directorio .kube  si no existe
+      ansible.builtin.file:
+        path: /home/sysadmin/.kube
+        state: directory
+        owner: sysadmin
+        group: sysadmin
+        mode: "0755"
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['master'] }}"
+      become: true
+
     - name: Agregar el usuario al grupo de microk8s
       ansible.builtin.command: "usermod -a -G microk8s {{ ansible_user }}"
       become: true
@@ -37,3 +48,4 @@
   ansible.builtin.command: /snap/bin/microk8s kubectl label node k8s-master node-role.kubernetes.io/control-plane=""
   delegate_to: "{{item}}"
   loop: "{{ groups['master'] }}"
+  become: true

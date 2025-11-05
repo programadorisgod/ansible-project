@@ -65,9 +65,11 @@
     owner: root
     group: root
     mode: "0644"
+  become: true
 
 - name: Levantar la interfaz virtual wg0 (abrir esa puerta para comunicarnos)
   ansible.builtin.command: ip link set wg0 up
+  become: true
 
 - name: Asegurar que wg0 esté arriba
   ansible.builtin.shell: |

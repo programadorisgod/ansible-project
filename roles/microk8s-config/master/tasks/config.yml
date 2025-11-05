@@ -1,18 +1,57 @@
-- name: Habilitar addon ingress de microk8s
-  ansible.builtin.command: "/snap/bin/microk8s enable  ingress"
-  register: enable_addons
-  changed_when: "'enabled' in enable_addons.stdout"
+# Asegurar que el API server está listo antes de habilitar cualquier addon
+- name: Esperar a que el API server de microk8s esté accesible
+  ansible.builtin.command: /snap/bin/microk8s kubectl get nodes
+  register: kubectl_ready
+  retries: 20
+  delay: 10
+  until: kubectl_ready.rc == 0
+  changed_when: false
+  become: true
 
+- name: Habilitar addon ingress de microk8s
+  ansible.builtin.command: "/snap/bin/microk8s enable ingress"
+  register: enable_addons
+  retries: 5
+  delay: 15
+  until: enable_addons.rc == 0
+  changed_when: "'enabled' in enable_addons.stdout or 'Enabling' in enable_addons.stdout"
+  become: true
+
+- name: Esperar 30 segundos para que el addon ingress se inicialice
+  ansible.builtin.pause:
+    seconds: 30
+
+# Habilitar MetalLB con el rango de IPs
 - name: Habilitar addon metallb de microk8s
-  ansible.builtin.command: "/snap/bin/microk8s enable metallb:{{metallb_ip_range}}"
+  ansible.builtin.command: "/snap/bin/microk8s enable metallb:{{ metallb_ip_range }}"
   register: enable_metallb
-  changed_when: "'enabled' in enable_metallb.stdout"
+  retries: 5
+  delay: 15
+  until: enable_metallb.rc == 0
+  changed_when: "'enabled' in enable_metallb.stdout or 'Enabling' in enable_metallb.stdout"
+  become: true
+
+- name: Esperar a que el API server responda nuevamente
+  ansible.builtin.command: /snap/bin/microk8s kubectl get pods -A
+  register: api_ready
+  retries: 20
+  delay: 10
+  until: api_ready.rc == 0
+  changed_when: false
+  become: true
 
 - name: Habilitar el addon de storage para las bases de datos
   ansible.builtin.command: "/snap/bin/microk8s enable hostpath-storage"
-  register: enable_hostpath-storage
-  changed_when: "'enabled' in enable_hostpath-storage.stdout"
+  register: enable_hostpath_storage
+  retries: 5
+  delay: 15
+  until: enable_hostpath_storage.rc == 0
+  changed_when: "'enabled' in enable_hostpath_storage.stdout or 'Enabling' in enable_hostpath_storage.stdout"
+  become: true
 
 - name: Mostrar resultado de habilitar addons
   ansible.builtin.debug:
-    msg: "{{ enable_addons.stdout }} {{ enable_metallb.stdout }}"
+    msg:
+      - "Ingress: {{ enable_addons.stdout }}"
+      - "MetalLB: {{ enable_metallb.stdout }}"
+      - "Storage: {{ enable_hostpath_storage.stdout }}"
