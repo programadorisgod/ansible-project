@@ -11,8 +11,6 @@ timezone: "America/Bogota"
 user_host: "camidev"
 ssh_authorized_keys: "~/.ssh/authorized_keys"
 home_dir: "/home/camidev"
-allowed_ips: 10.10.0.2/32
-endpoint: 192.168.1.108:51820
 #metallb_ip_range: 192.168.1.200-192.168.1.250
 metallb_ip_range: 192.168.80.230-192.168.80.249
 nic: enp2s0
