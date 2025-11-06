@@ -1,10 +1,24 @@
+- name: Eliminar contenedor del agente si existe
+  community.docker.docker_container:
+    name: azp-agent-linux
+    state: absent
+    force_kill: true
+
 - name: Correr el contendor del agente
   community.docker.docker_container:
     name: azp-agent-linux
-    image: camilodevp/azp-agent:latest
+    image: camilodevp/azp-agent:0.0.0
     state: started
+    privileged: true
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker:/var/lib/docker
     env:
       AZP_URL: "{{ azure_devops_url }}"
       AZP_TOKEN: "{{ azure_devops_token }}"
       AZP_POOL: "{{ azure_devops_agent_pool }}"
       AZP_AGENT_NAME: "Docker Agent - Linux"
+      AGENT_ALLOW_RUNASROOT: "true"
+    restart_policy: unless-stopped
+    detach: true

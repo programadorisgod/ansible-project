@@ -8,29 +8,29 @@
     src: "{{ playbook_dir }}/../roles/azure_devops/images/"
     dest: "/tmp/azp-agent-build/"
     mode: "0644"
-  when: ls_output_verify.stdout_lines | length == 0
+  # when: ls_output_verify.stdout_lines | length == 0
 
 - name: Verificar que los archivos llegaron al remoto
   ansible.builtin.shell: ls -l /tmp/azp-agent-build
   register: ls_output
-  when: ls_output_verify.stdout_lines | length == 0
+  # when: ls_output_verify.stdout_lines | length == 0
 
 - debug:
     var: ls_output.stdout_lines
-  when: ls_output_verify.stdout_lines | length == 0
+  # when: ls_output_verify.stdout_lines | length == 0
 
 - name: Construir imagen del agente de Azure DevOps
   community.docker.docker_image:
     name: "camilodevp/azp-agent"
-    tag: "latest"
+    tag: "0.0.0"
     build:
       path: "/tmp/azp-agent-build"
       dockerfile: azp-agent-linux.dockerfile
     source: build
     state: present
   register: build_output
-  when: ls_output_verify.stdout_lines | length == 0
+  # when: ls_output_verify.stdout_lines | length == 0
 
 - debug:
     var: build_output
-  when: ls_output_verify.stdout_lines | length == 0
+  # when: ls_output_verify.stdout_lines | length == 0
