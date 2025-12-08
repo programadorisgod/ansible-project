@@ -3,6 +3,7 @@
     src: preseed.cfg
     dest: "{{ wrk_dir }}/preseed.cfg"
     mode: "0644"
+  become: true
 
 - name: Copiar authorized_keys si existe
   copy:
