@@ -2,9 +2,24 @@
   hosts: controller
   gather_facts: false
   become: true
-  roles:
-    - install_and_configure_docker
-    - azure_devops/login_docker_hub
-    - azure_devops/build_agent_image
-    - azure_devops/push_agent_image
-    - azure_devops/run_agent_container
+  vars:
+    skip_process_image: false
+  tasks:
+    - name: Instalar y configurar docker
+      import_role:
+        name: install_and_configure_docker
+
+    - import_role:
+        name: azure_devops/login_docker_hub
+      when: not skip_process_image | bool
+
+    - import_role:
+        name: azure_devops/build_agent_image
+      when: not skip_process_image | bool
+
+    - import_role:
+        name: azure_devops/push_agent_image
+      when: not skip_process_image | bool
+
+    - import_role:
+        name: azure_devops/run_agent_container
