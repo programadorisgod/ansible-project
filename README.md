@@ -98,7 +98,7 @@ ya que estamos usando ansible.cfg que contiene todo lo necesario para que ansibl
 ```bash
 ansible-playbook playbooks/00_setup_common_host_dependencies.yml --extra-vars "skip_build_vm=true"
 ```
-ó 
+ó recomendado
 ```bash 
 ansible-playbook playbooks/00_setup_common_host_dependencies.yml \
   --extra-vars '{"skip_process_image": true, "skip_build_vm": true}'
