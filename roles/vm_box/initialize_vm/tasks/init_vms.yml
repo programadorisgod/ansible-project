@@ -1,0 +1,9 @@
+- name: Esperar a que se creen la vm
+  ansible.builtin.pause:
+    minutes: 8
+
+- name: Iniciar las vm's
+  ansible.builtin.shell: |
+    virsh start {{ item.name }}
+  loop: "{{ vm_list }}"
+  become: true
