@@ -2,8 +2,19 @@
   ansible.builtin.apt:
     name:
       - openssh-server
-      - arp-scan
-      - virtualbox
+      - bridge-utils
+      - cpu-checker
+      - libvirt-clients
+      - libvirt-daemon
+      - qemu-system
+      - qemu-system-x86
+      - qemu-utils
+      - virtinst
+      - virt-manager
+      - libvirt-daemon-system
+      - libvirt-clients
+      - bridge-utils
+      - qemu-system
     state: present
     update_cache: yes
   become: true
