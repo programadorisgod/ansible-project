@@ -1,10 +1,62 @@
 - name: limpiar las maquinas anteriores
   ansible.builtin.shell: |
-    for vm in $(VBoxManage list runningvms | awk '{print $1}' | tr -d '""'); do
-    VBoxManage controlvm "$vm" poweroff || true;
+    for vm in $(virsh list --all | awk 'NR>2 {print $2}'); do
+       virsh destroy "$vm" 2>/dev/null || true
+       virsh undefine "$vm" --remove-all-storage
     done
+  ignore_errors: true
+  become: true
 
-    for vm in $(VBoxManage list vms | awk '{print $1}' | tr -d '"'); do
-        VBoxManage unregistervm "$vm" --delete
-    done
+- name: Virtualizaciónm libvirtd - Asegurar que el servicio libvirtd esté iniciado y habilitado
+  ansible.builtin.systemd_service:
+    name: libvirtd
+    state: started
+    enabled: true
+  become: true
+
+- name: Asegurar que el usuario {{ ansible_user }} esté en el grupo libvirt
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: libvirt
+    append: yes
+  become: true
+
+- name: Asegurar que el usuario {{ ansible_user }} esté en el grupo kvm
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: kvm
+    append: yes
+  become: true
+
+- name: Reiniciar el servicio libvirtd para aplicar cambios de grupo
+  ansible.builtin.systemd_service:
+    name: libvirtd
+    state: restarted
+  become: true
+
+- name: Verificar la instalación de KVM
+  ansible.builtin.shell: |
+    kvm-ok
+  register: kvm_check
+  ignore_errors: true
+
+- name: Mostrar resultado de la verificación de KVM
+  ansible.builtin.debug:
+    msg: "{{ kvm_check.stdout }}"
+
+- name: Verificar el estado de la red
+  ansible.builtin.shell: |
+    virsh net-list --all
+  register: net_list
+  become: true
+
+- name: Mostrar estado de la red
+  ansible.builtin.debug:
+    msg: "{{ net_list.stdout }}"
+
+- name: Asegurar que la red por defecto esté activa
+  ansible.builtin.shell: |
+    virsh net-start default
+    virsh net-autostart default
+  become: true
   ignore_errors: true
