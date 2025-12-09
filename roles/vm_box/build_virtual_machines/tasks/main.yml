@@ -1,16 +1,36 @@
+- name: crear directorio de almacenamiento de las vm's
+  ansible.builtin.file:
+    path: "{{ parent_folder }}/storage"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0755"
+  become: true
+
+- name: crear discos virtuales de las vm's sino existen
+  ansible.builtin.shell: |
+    qemu-img create -f qcow2 {{ item.name }}.qcow2 {{item.disk_size}}G
+  args:
+    chdir: "{{ storage_path }}"
+    creates: "{{ storage_path }}/{{ item.name }}.qcow2"
+  loop: "{{vm_list}}"
+  become: true
+
 - name: Crear vm's
   ansible.builtin.shell: |
-    VBoxManage createvm --name "{{ item.name }}" --ostype Debian_64 --basefolder {{ parent_folder }} --register
-    VBoxManage modifyvm "{{ item.name }}" --firmware bios --boot1 dvd --boot2 disk --boot3 none --boot4 none
-    VBoxManage modifyvm "{{ item.name }}" --memory {{ item.memory }} --cpus {{ item.cpus }} --audio-driver none --graphicscontroller vmsvga --vram 16
-    VBoxManage createhd --filename {{ parent_folder }}/{{ item.name }}/{{ item.name }}.vdi --size {{ item.disk_size }} --variant Standard
-    VBoxManage storagectl "{{ item.name }}" --name "SATA Controller" --add sata --controller IntelAhci
-    VBoxManage storageattach "{{ item.name }}" --storagectl "SATA Controller" --port 0 --device 0 --type hdd --medium {{ parent_folder }}/{{ item.name }}/{{ item.name }}.vdi --nonrotational on --hotpluggable on
-    VBoxManage storagectl "{{ item.name }}" --name "IDE Controller" --add ide
-    VBoxManage modifyvm "{{ item.name }}" --macaddress1 {{item.mac1}}
-    VBoxManage modifyvm "{{ item.name }}" --nic1 bridged --bridgeadapter1 {{nic}}
-    VBoxManage modifyvm  "{{ item.name }}" --nicpromisc1 allow-all
-    VBoxManage storageattach "{{ item.name }}" --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium {{ iso_out }}
+    virt-install \
+       --name "{{ item.name }}" \
+       --ram  {{ item.memory }} \
+       --vcpus {{ item.cpus }} \
+       --cpu host \
+       --disk path="{{storage_path}}/{{item.name}}".qcow2,format=qcow2,size=20 \
+       --cdrom {{iso_out}} \
+       --network network=default,mac={{item.mac1}} \
+       --graphics none \
+       --console pty,target_type=serial \
+       --os-variant {{os_variant}} \
+       --boot cdrom,hd \
+       --noautoconsole \
+       --noreboot
   loop: "{{vm_list}}"
-  when: item.name != "dhcp-server"
-  become: false
+  become: true
