@@ -1,5 +1,8 @@
-# Orden de Ejecución de Playbooks y Roles
+#  **DevOps Infrastructure Automation Platform**
+## *End-to-End Kubernetes Deployment with Ansible, MicroK8s & GitOps*
 
+
+### Orden de Ejecución de Playbooks y Roles
 Este proyecto utiliza Ansible para automatizar la construcción de una infraestructura completa, desde la creación de una ISO personalizada hasta el despliegue de servicios en Kubernetes.
 A continuación se detalla el orden recomendado de ejecución de los playbooks y roles, siguiendo la numeración para facilitar el flujo y la comprensión del proceso.
 
@@ -149,3 +152,15 @@ roles_path = ./roles
 inventory   = ./.hosts
 host_key_checking = False
 vault_password_file = ~/.vault_pass
+
+
+
+## **Technical Architecture & Implementation**
+
+### **Core Technologies**
+- **Ansible 2.15+** - Infrastructure orchestration and configuration management
+- **MicroK8s 1.28+** - Lightweight, certified Kubernetes distribution
+- **Debian 13** - Base operating system with custom ISO builds
+- **ArgoCD 2.8+** - GitOps continuous delivery
+- **Docker 24+** - Container runtime and image management
+- **Azure DevOps** - CI/CD pipeline integration
