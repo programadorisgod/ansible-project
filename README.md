@@ -2,25 +2,25 @@
 ## *End-to-End Kubernetes Deployment with Ansible, MicroK8s & GitOps*
 
 
-### Orden de Ejecución de Playbooks y Roles
-Este proyecto utiliza Ansible para automatizar la construcción de una infraestructura completa, desde la creación de una ISO personalizada hasta el despliegue de servicios en Kubernetes.
-A continuación se detalla el orden recomendado de ejecución de los playbooks y roles, siguiendo la numeración para facilitar el flujo y la comprensión del proceso.
+### Playbook and Role Execution Order
+This project uses Ansible to automate the construction of a complete infrastructure, from creating a custom ISO to deploying services in Kubernetes.
+The following details the recommended execution order of playbooks and roles, following numbering to facilitate the flow and understanding of the process.
 
 ---
 
-## 00. Instalación de dependencias comunes en el host local
+## 00. Installation of common dependencies on local host
 - **Playbook:** `00_setup_common_host_dependencies.yml`
 - **Roles:**
   1. `common_host`
 
-## 01. Construcción de ISO Debian personalizada
+## 01. Custom Debian ISO construction
 - **Playbook:** `01_build_custom_debian_iso.yml`
 - **Roles:**
   1. `iso/prepare_debian_iso_environment`
   2. `iso/customize_debian_iso`
   3. `iso/build_debian_iso`
 
-## 02. Creación de máquinas virtuales
+## 02. Virtual machine creation
 - **Playbook:** `02_create_virtual_machines_from_iso.yml`
 - **Roles:**
   1. `common_host`
@@ -28,12 +28,12 @@ A continuación se detalla el orden recomendado de ejecución de los playbooks y
   3. `vm_box/build_virtual_machines`
   4. `vm_box/initialize_vm_networking`
 
-## 03. Configuración de VMs (hostname, timezone, servicios)
+## 03. VM configuration (hostname, timezone, services)
 - **Playbook:** `03_configure_vm_hostname_timezone_and_services.yml`
 - **Roles:**
   1. `configure_vm_hostname_and_timezone`
 
-## 06. Instalación de Docker y agente Azure DevOps
+## 06. Docker and Azure DevOps agent installation
 - **Playbook:** `06_setup_docker_and_azure_agent.yml`
 - **Roles:**
   1. `install_and_configure_docker`
@@ -42,20 +42,20 @@ A continuación se detalla el orden recomendado de ejecución de los playbooks y
   4. `azure_devops/push_image`
   5. `azure_devops/run_agent`
 
-## 07. Instalación de MicroK8s
+## 07. MicroK8s installation
 - **Playbook:** `07_install_microk8s_cluster.yml`
 - **Roles:**
   1. `mikr8s`
 
 
 
-## 08. Configuración del cluster MicroK8s
+## 08. MicroK8s cluster configuration
 - **Playbook:** `10_configure_microk8s_cluster.yml`
 - **Roles:**
   1. `microk8s-config/master`
   2. `microk8s-config/worker`
 
-## 09. Instalación y configuración de ArgoCD
+## 09. ArgoCD installation and configuration
 - **Playbook:** `11_install_and_configure_argocd.yml`
 - **Roles:**
   1. `argocd/install`
@@ -65,43 +65,43 @@ A continuación se detalla el orden recomendado de ejecución de los playbooks y
 
 ## Roles
 
-| Nombre                             | Descripción Breve                                    |
+| Name                               | Brief Description                                    |
 | ---------------------------------- | ---------------------------------------------------- |
-| iso/prepare_debian_iso_environment | Prepara entorno y dependencias para construir la ISO |
-| iso/customize_debian_iso           | Personaliza archivos y configuraciones de la ISO     |
-| iso/build_debian_iso               | Genera la ISO personalizada                          |
-| vm_box/prepare_vm_environment      | Prepara entorno para creación de VMs                 |
-| vm_box/build_virtual_machines      | Crea las máquinas virtuales                          |
-| vm_box/initialize_vm_networking    | Inicializa red/DHCP en las VMs                       |
-| common_host                        | Instala paquetes comunes en el host                  |
-| configure_vm_hostname_and_timezone | Configura hostname y timezone en VMs                 |
-| install_and_configure_docker       | Instala y configura Docker                           |
-| mikr8s                             | Instala MicroK8s                                     |
-| microk8s-config/master             | Configura el nodo master de MicroK8s                 |
-| microk8s-config/worker             | Añade y conecta nodos worker al cluster MicroK8s     |
-| argocd/install                     | Instala ArgoCD en MicroK8s                           |
-| argocd/configure                   | Configura Ingress y parámetros de ArgoCD             |
-| azure_devops/login_docker_hub      | Login en Docker Hub para Azure DevOps                |
-| azure_devops/build_agent_image     | Construye imagen del agente de Azure DevOps          |
-| azure_devops/push_agent_image      | Publica la imagen del agente en Docker Hub           |
-| azure_devops/run_agent_container   | Corre el contenedor del agente de Azure DevOps       |
+| iso/prepare_debian_iso_environment | Prepares environment and dependencies to build the ISO |
+| iso/customize_debian_iso           | Customizes files and ISO configurations             |
+| iso/build_debian_iso               | Generates the custom ISO                             |
+| vm_box/prepare_vm_environment      | Prepares environment for VM creation                |
+| vm_box/build_virtual_machines      | Creates the virtual machines                         |
+| vm_box/initialize_vm_networking    | Initializes network/DHCP on VMs                     |
+| common_host                        | Installs common packages on the host                |
+| configure_vm_hostname_and_timezone | Configures hostname and timezone on VMs             |
+| install_and_configure_docker       | Installs and configures Docker                      |
+| mikr8s                             | Installs MicroK8s                                   |
+| microk8s-config/master             | Configures the MicroK8s master node                 |
+| microk8s-config/worker             | Adds and connects worker nodes to the MicroK8s cluster |
+| argocd/install                     | Installs ArgoCD on MicroK8s                         |
+| argocd/configure                   | Configures Ingress and ArgoCD parameters            |
+| azure_devops/login_docker_hub      | Docker Hub login for Azure DevOps                   |
+| azure_devops/build_agent_image     | Builds Azure DevOps agent image                     |
+| azure_devops/push_agent_image      | Publishes the agent image to Docker Hub             |
+| azure_devops/run_agent_container   | Runs the Azure DevOps agent container               |
 
-> **Nota:**
-> Los nombres de los roles y playbooks han sido elegidos para ser lo más descriptivos posible, y la numeración ayuda a mantener el orden lógico de ejecución.
-> Si agregas nuevos roles o playbooks, sigue este esquema para mantener la claridad y la mantenibilidad del proyecto.
+> **Note:**
+> The names of roles and playbooks have been chosen to be as descriptive as possible, and the numbering helps maintain the logical execution order.
+> If you add new roles or playbooks, follow this scheme to maintain the clarity and maintainability of the project.
 
-## Ejecución
+## Execution
 1.
 ```bash
 ansible-playbook playbooks/00_setup_common_host_dependencies.yml
 ```
-> Nota: Debemos estar en el directorio y ejecutamos el comando, no le especificamos el -i ni nada más,
-ya que estamos usando ansible.cfg que contiene todo lo necesario para que ansible tenga un contexto claro del archivo .hosts, la ruta de los roles y el archivo que contiene la contraseña de nuestro vault de Ansible.
-2. Si ya hemos ejecutado el playbook y algo falló, pero no queremos volver a crear las maquinas virtuales, podemos pasar una variable que indique que queremos saltarno el playbook encargado de la gestión de las maquinas virtual
+> Note: We must be in the directory and execute the command, we don't specify the -i or anything else,
+since we are using ansible.cfg which contains everything necessary for ansible to have a clear context of the .hosts file, the roles path and the file that contains the password for our Ansible vault.
+2. If we have already executed the playbook and something failed, but we don't want to recreate the virtual machines, we can pass a variable that indicates we want to skip the playbook responsible for virtual machine management
 ```bash
 ansible-playbook playbooks/00_setup_common_host_dependencies.yml --extra-vars "skip_build_vm=true"
 ```
-ó recomendado
+or recommended
 ```bash 
 ansible-playbook playbooks/00_setup_common_host_dependencies.yml \
   --extra-vars '{"skip_process_image": true, "skip_build_vm": true}'
@@ -109,58 +109,46 @@ ansible-playbook playbooks/00_setup_common_host_dependencies.yml \
 
 
 ## Variables
-En ansible podemos usar las vars, que son conocidas como variables magicas, estas son utiles para volver nuestro script muy versatil y adaptable, existen niveles de jerarquía en los cuales nosotros podemos guardar estas variables
-- group_vars/  --> Group vars permite que guardemos variables por grupos de maquintas, para identificarlos cada carpeta debe llevar el nombre que los identifica en el .host el cual se encuentra en [ ].
-- host_vars/ --> Permite que guardemos variables a nivel de host, para poder identificarlo, el archivo debe llevar el nombre que utiliza en el Playbook o en su defecto el del archivo .host ya que si en el .hots tenemos algo como:
+In ansible we can use vars, which are known as magic variables, these are useful to make our script very versatile and adaptable, there are hierarchy levels in which we can store these variables
+- group_vars/  --> Group vars allows us to store variables by machine groups, to identify them each folder must have the name that identifies them in the .host which is found in [ ].
+- host_vars/ --> Allows us to store variables at the host level, to be able to identify it, the file must have the name used in the Playbook or failing that the one from the .host file since if in the .hosts we have something like:
 > [local]
 > localhost ....
- ansible buscará el archivo llamado localhost.yml o .yaml
+ ansible will look for the file named localhost.yml or .yaml
 
-- vars/ --> Es muy ambiguo y poco escalable ya que tendriamos todo suelto sin saber de quien a futuro.
-- roles/rol/vars/  --> Defaults fuertes del rol, es decir es más especifico.
-- roles/rol/defaults/ Defaults debiles del rol, se pueden sobreescribir por el anterior, host_vars o group_vars
+- vars/ --> It is very ambiguous and not scalable since we would have everything loose without knowing who it belongs to in the future.
+- roles/rol/vars/  --> Strong role defaults, that is, it is more specific.
+- roles/rol/defaults/ Weak role defaults, can be overwritten by the previous one, host_vars or group_vars
 
 
-## Configuraciones necesarias
+## Necessary configurations
 1. Ansible vault.
-Tenemos varaibles que no queremos que estén expuestas y que en caso tal se filtre nuestro repositorio quedemos tan expuesto, por lo tanto usaremos ansible-vault que nos permite guardar variables de manera cifrada. Todos los datos de este repositorio son de ejemplo para fines educativos.
-### Crear las variables cifradas
+We have variables that we don't want to be exposed and in case our repository is leaked we remain so exposed, therefore we will use ansible-vault which allows us to store variables in an encrypted manner. All data in this repository is for example purposes for educational purposes.
+### Create encrypted variables
 
 ```bash
 ansible-vault create /home/user/folder/ansible-project/group_vars/group/your_file.yml
 ```
-si dentro de tu ansible.cfg añades la instrucción vault_password_file simplemente te abrirá vi o vim, para que ingreses tus variables y automaticamente se cifrará con la contraseña establecida, sino, te preguntará que contraseña usarás.
+if within your ansible.cfg you add the vault_password_file instruction it will simply open vi or vim, so you can enter your variables and it will automatically encrypt with the established password, otherwise, it will ask what password you will use.
 
-### Ver variables en texto plano (si tenemos el ansible password file)
+### View variables in plain text (if we have the ansible password file)
 ```bash
 ansible-vault view /home/user/folder/ansible-project/group_vars/group/your_file.yml
 ```
-sino
+otherwise
 
 ```bash
 ansible-playbook path-to-file --ask-vault-pass
 ```
 
-### editar variables
+### edit variables
 ```bash
 ansible-vault edit /home/user/folder/ansible-project/group_vars/group/your_file.yml
 ```
 
-### Ejemplo ansible.cfg
+### Example ansible.cfg
 [defaults]
 roles_path = ./roles
 inventory   = ./.hosts
 host_key_checking = False
 vault_password_file = ~/.vault_pass
-
-
-
-## **Technical Architecture & Implementation**
-
-### **Core Technologies**
-- **Ansible 2.15+** - Infrastructure orchestration and configuration management
-- **MicroK8s 1.28+** - Lightweight, certified Kubernetes distribution
-- **Debian 13** - Base operating system with custom ISO builds
-- **ArgoCD 2.8+** - GitOps continuous delivery
-- **Docker 24+** - Container runtime and image management
-- **Azure DevOps** - CI/CD pipeline integration
